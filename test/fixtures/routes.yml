@@ -1,11 +1,16 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  place: 
-  place: 
-  distance: 
+rt_one:
+  place_origin: pl_one
+  place_destiny: pl_three
+  distance: 20
 
-two:
-  place: 
-  place: 
-  distance: 
+rt_two:
+  place_origin: pl_one
+  place_destiny: pl_two
+  distance: 10
+
+rt_three:
+  place_origin: pl_two
+  place_destiny: pl_three
+  distance: 8

@@ -1,7 +1,13 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  description: 
+pl_one:
+  description: 'Local1'
 
-two:
-  description: 
+pl_two:
+  description: 'Local2'
+
+pl_three:
+  description: 'Local3'
+
+pl_four:
+  description: 'Local4'

@@ -33,7 +33,7 @@ class DistancesController < ApplicationController
 			distancia = data[2]
 			if distancia.to_i<=0 || distancia.to_i > 100000
 				status = 'erro'
-				mensagem = 'Distance must be a number between 1 e 100000'
+				mensagem = 'Distance must be a number between 1 and 100000'
 			else
 
 				status = 'ok'
