@@ -1,64 +1,132 @@
-Ruby Engineer Coding Challenge
+Rails Distance API
 =======================
 
 Hello!
 
-We've come up with this relatively open-ended programming/engineering challenge that will allow you to demonstrate your skills from the comfort of your own workspace. In addition, we know your time is valuable, so please feel free to use your completed work as a portfolio piece.
+This is an API that give the user the possibility to save routes between two geographic points. It also give one way to calculate the cost between two of these points, based on the distance previously saved.
+This API use the smaller route to determine the cost of the travel and can use the waypoints previously setted to determine the lower cost.
 
-We wish you the best of luck and can't wait to see what you create!
+## Getting Started
 
-## Overview
+These instructions will teach how to set-up and run the API. This will also do some considerations about the way that this has been developed and the reasons for that.
 
-Your goal is to develop a system to calculate the shipping cost for products of an order, based on it's weight and distance from origin to destination. The distribution points will be supplied to this system throught an API and the shipping cost will be calculated in another API, always aiming at the lowest cost to the customer.
+### Prerequisites
 
-To populate the database, another system will call the API informing the distance (in kilometers) between *origin* and *destination* of two distribution points. For example:
+To run this API, first of all you need to have "Ruby" installed in your system.
+
+If you are running Ubuntu, you could get Ruby using apt.
 ```
-POST /distance
-A B 10
-```
-```
-POST /distance
-B C 15
-```
-```
-POST /distance
-A C 30
+apt-get install ruby
 ```
 
-In a second moment, the shopping system will call the API informing the total weight of the order, the source and destination points. The system should return the lowest shipping cost, using the formula: `cost = distance * weight * 0.15`. For example:
+An Other way to install Ruby is using a Package Manager, like `asdf`.
+You could see how to install asdf [here](https://github.com/asdf-vm/asdf) and how to install ruby from asdf [here](https://github.com/asdf-vm/asdf-ruby).
 
+
+Regardless of the way Ruby is installed, you'll need to install Rails. For that you need to run
 ```
-GET /cost?origin=A&destination=C&weight=5
-18.75
+gem install rails
 ```
 
-Explanation: the shortest path from A to C is A -> B -> C = 25km. `cost = 25 * 5 * 0.15 = 18.75`
+After that you're able to set-up and run the application
+
+### Instalation
+
+To set-up the application, first of all you need to clone the application in a path on your system.
+The repository of application is [here](https://github.com/cirrastda/backend-code-challenge).
+
+You can download the source code from the repository or clone it from the command line. For example
+```
+git clone https://github.com/cirrastda/backend-code-challenge .
+```
+
+After clone (or download) your application, you need, in the application path, run the database set-up. For that you should run
+```
+rails db:migrate
+```
+
+After that, you need to run your application. For that you need to run
+```
+rails server
+```
+
+## Running the API
+
+### Distance API
+
+To run the Distance API, you need to make a post request to the Server link, passing the *origin*, *destination* and *distance* in a text/plain way. For example:
+```
+wget -S http://localhost:3000/distance -O response.json --post-data 'LOC1 LOC2 10'
+```
+
+This will generate a response file called `response.json` with the result of the request.
+
+The response is created with type `application/json`, with the attributes `status` and `message`. For example:
+```
+{"status":"ok","mensagem":"Success"}
+```
+When the `status` attribute indicates if the request is sucessfull or not and the `message` attribute indicate the return message (or error message in case of error).
+
+There are two possible status returned in the response.
+- `ok`: Indicate a successfull request
+- `error`: Indicate an error in the request. This status is accompanied by a message indicating the error.
+
+In case of success, the distance between the two passed points will be setted-up if it doesn't exists or update if it already exists.
+
+### Cost API
+
+The cost API will return the smallest cost of the travel between the two passed points, considering the weight of the weight of the load, passed to the API.
+To determine the smallest cost of the travel, the API will determine the shortest distance between the points passed to the API, independent os the number of waypoints.
+
+To calculate the cost os the travel, you need to call the API passing the *origin*, *destination* and the *weight* in the query string, doing a GET request.
+For example:
+```
+wget -S -O cost.txt 'http://localhost:3000/cost?origin=LOC1&destination=LOC2&weight=10'
+```
+
+This will generate a response file called `cost.txt` with the result of the request, that is set with type `plain/text`.
+If the route could be found, the result will be the cost of the travel, using the shortest distance, following the formula: `cost = distance * weight * 0.15`.
+If the route couldn't be determined, the API will return the message `No Path Found between Origin and Destination`
+Also, if Origin or Destination are not set in the database, the request will return `Origin not found` or `Destination not found` according to the given error.
+
+### Alternative ways
+
+There are other ways to call the API, like [cUrl](https://github.com/curl/curl) or using a REST Client like [Postman](https://www.getpostman.com/).
+Any of these have it's own way to make the call. These could be check acessing the tool documentation. 
+
+
+## Run Tests
+
+This API has been developed with Unit Test funcionalities.
+There are two Model tests (following the two models used to develop the API) and two Controller tests, following the two API Interfaces developed.
+
+To run the Model Tests, you need to run
+```
+rails test test/models
+```
+
+Also, to run Controllet Tests you need to run
+```
+rails test test/controllers
+```
+
+If you need to run all tests, you could run
+```
+rails test
+```
 
 ## Considerations
 
-* The input format of distance should have the format `A B X`, where *0 < X <= 100000*. Wrong format or data should return an error;
-* If a distance point already exists, should be replaced with the new value;
-* The cost API should validate the given points and weight, where *0 < wheight <= 50*. If no path was found between *origin*  and *destination*, and error should be returned;
-* The solution should be implemented in Ruby. You could use the frameworks that you're most used to.
-* Both APIs will receive a large amount of requests: choose the design and technology wisely;
+The solution has been developed using Rails, due to it's easiest way to develop a simple API. It also used *SQLite* as database due to it's easy to set-up.
 
-## Submission
+It has been created two database tables. The first one is to record the Places passed from user, normalizing the Places. The other one, with two foreign keys to the *Place* table is to record the distance between two places.
 
-You can follow the GitHub Fork/Pull Request workflow by [forking this repository](https://github.com/RakutenBrasil/backend-code-challenge/fork), commiting your changes, and submiting a pull request to us, explaning your solution, technical decisions and how configure/use on the README file. For more information about that, you can see this [GitHub article](https://help.github.com/articles/fork-a-repo/#propose-changes-to-someone-elses-project).
+To record the distances, the controller look for the places passed as parameters and, if they don't exist (or one of that), they are created in database, returning it's generated ids to be recorded. Id they already exists, the controller search and return their's ids.
+The *distances* controller is subdivided in 3 actions. The main one and two auxiliary, that are privates. This was made to make the code easier to understand and to be more organized.
 
-## What we are looking for
+The *costs* controller also has three actions. The main action, called *process* and two auxiliary. One to validate the entry parameters and other to calculate the Weight using the parameters. The second one also check if the passed origin and destinaion exists in database, before look to the route.
 
-We are looking for several things with this challenge. First, of course, we're looking for your answer to be technically correct. Beyond that, we're also looking for:
+To determine the shortest route between two places, it's been used a recursive query, following the full path of the routes that starts with the origin point and determining what of that ends with the destination point, sorting then from distance and returning the first one.
+This solution was made because it needs less iterations, making that less costable to the server.
 
-* Is your code easy to read and understand?
-* Are you following the usual conventions for Ruby development?
-* How good are you at writing tests? And how easy are they to read and understand?
-* Did you follow these directions?
-
-We will of course **examine your code to see its correctness, readability, general elegance, architectural decisions, and modularity**. If/when you meet with us, be prepared to talk about why and how you design your solution. We also test your system with a large amount of data to mesure the performance and to see if we can break stuff.
-
-That's it. There aren't any hidden gotchas or trick questions. That's really what we're going to do.
-
-## License
-
-We have licensed this project under the MIT license so that you may use this for a portfolio piece (or anything else!).
+The tests was developed using some scenarios identifieds during the developing.
